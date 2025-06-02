@@ -36,7 +36,7 @@ Este sistema foi desenvolvido para gerenciar o estoque de produtos de uma empres
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/controle-estoque.git
+git clone https://github.com/GanzellaLorenzo/EstoqueFacilFatec.git
 cd controle-estoque
 ```
 

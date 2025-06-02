@@ -93,9 +93,57 @@
             const usuarioId = urlParams.get('id');
             
             if (usuarioId) {
-                carregarColaborador(usuarioId);
+                // Dados fictícios para demonstração
+                const colaboradoresFicticios = {
+                    '1': {
+                        userId: 1,
+                        nomeColaborador: 'João Silva',
+                        emailColaborador: 'joao@exemplo.com',
+                        ativo: true
+                    },
+                    '2': {
+                        userId: 2,
+                        nomeColaborador: 'Maria Souza',
+                        emailColaborador: 'maria@exemplo.com',
+                        ativo: true
+                    },
+                    '3': {
+                        userId: 3,
+                        nomeColaborador: 'Pedro Oliveira',
+                        emailColaborador: 'pedro@exemplo.com',
+                        ativo: true
+                    },
+                    '4': {
+                        userId: 4,
+                        nomeColaborador: 'Ana Costa',
+                        emailColaborador: 'ana@exemplo.com',
+                        ativo: false
+                    }
+                };
+                
+                const colaborador = colaboradoresFicticios[usuarioId];
+                
+                if (colaborador) {
+                    document.getElementById('userId').value = colaborador.userId;
+                    document.getElementById('nomeColaborador').value = colaborador.nomeColaborador;
+                    document.getElementById('emailColaborador').value = colaborador.emailColaborador;
+                    document.getElementById('ativo').checked = colaborador.ativo;
+                } else {
+                    alert('Colaborador não encontrado');
+                    window.location.href = 'listar.html';
+                }
             } else {
                 window.location.href = 'listar.html';
+            }
+            
+            // Adicionar evento para o formulário
+            const colaboradorForm = document.getElementById('colaboradorForm');
+            if (colaboradorForm) {
+                colaboradorForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Colaborador atualizado com sucesso!');
+                    window.location.href = 'listar.html';
+                });
             }
         });
     </script>

@@ -50,7 +50,67 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabelaAuditoria">
-                                    <!-- Dados serão carregados via JavaScript -->
+                                    <!-- Dados estáticos de auditoria -->
+                                    <tr class="table-success-light">
+                                        <td>05/06/2025 10:15</td>
+                                        <td>João Silva</td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                Entrada
+                                            </span>
+                                        </td>
+                                        <td>Entrada de 10 unidades de Notebook Dell</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info view-details" data-id="1">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-danger-light">
+                                        <td>04/06/2025 15:30</td>
+                                        <td>Maria Souza</td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                Saída
+                                            </span>
+                                        </td>
+                                        <td>Saída de 2 unidades de Monitor 24"</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info view-details" data-id="2">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-success-light">
+                                        <td>03/06/2025 11:45</td>
+                                        <td>Pedro Gomes</td>
+                                        <td>
+                                            <span class="badge bg-success">
+                                                Entrada
+                                            </span>
+                                        </td>
+                                        <td>Entrada de 5 unidades de Teclado Mecânico</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info view-details" data-id="3">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-danger-light">
+                                        <td>02/06/2025 09:20</td>
+                                        <td>Ana Ferreira</td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                Saída
+                                            </span>
+                                        </td>
+                                        <td>Saída de 1 unidade de Notebook Dell</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info view-details" data-id="4">
+                                                <i class="bi bi-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -121,5 +181,41 @@
     <script src="../js/components.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/auditoria.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esconder indicador de carregamento
+            document.getElementById('carregandoAuditoria').classList.add('d-none');
+            
+            // Adicionar eventos aos botões
+            document.querySelectorAll('.view-details').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const detalhesModal = new bootstrap.Modal(document.getElementById('detalhesModal'));
+                    
+                    // Preencher dados estáticos no modal
+                    document.getElementById('detalheDataHora').textContent = '05/06/2025 10:15';
+                    document.getElementById('detalheUsuario').textContent = 'João Silva';
+                    document.getElementById('detalheTipoAcao').textContent = 'Entrada de Produto';
+                    document.getElementById('detalheDescricao').textContent = 'Entrada de 10 unidades de Notebook Dell';
+                    
+                    document.getElementById('secaoDetalheProduto').classList.remove('d-none');
+                    document.getElementById('detalheProduto').textContent = 'Notebook Dell (ID: 1)';
+                    
+                    document.getElementById('secaoDetalheAntes').classList.add('d-none');
+                    document.getElementById('secaoDetalheDepois').classList.add('d-none');
+                    
+                    detalhesModal.show();
+                });
+            });
+            
+            // Eventos para botões de exportação e filtro
+            document.getElementById('btnExportar').addEventListener('click', function() {
+                alert('Funcionalidade de exportação em desenvolvimento');
+            });
+            
+            document.getElementById('btnFiltrarPeriodo').addEventListener('click', function() {
+                alert('Funcionalidade de filtro por período em desenvolvimento');
+            });
+        });
+    </script>
 </body>
 </html>

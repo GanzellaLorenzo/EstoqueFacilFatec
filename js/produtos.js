@@ -253,117 +253,111 @@ async function registrarMovimentacao() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-    const usuarioNomeElement = document.getElementById('usuarioNome');
-    if (usuarioNomeElement) {
-        usuarioNomeElement.textContent = usuario.nome || 'Usuário';
-    }
-    
-    const empresaNomeElement = document.getElementById('empresaNome');
-    if (empresaNomeElement && usuario.tipo === 'GESTOR') {
-        empresaNomeElement.textContent = usuario.empresa || '';
-    }
-    
-    if (usuario.tipo !== 'GESTOR') {
-        document.querySelectorAll('.gestor-only').forEach(el => {
-            el.style.display = 'none';
-        });
-    }
-
-    if (window.location.href.includes('listar.html')) {
-        carregarProdutos();
-    }
-    
-    if (window.location.href.includes('editar.html')) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const produtoId = urlParams.get('id');
+    // Verifica se está na página de listagem de produtos
+    if (window.location.href.includes('listar.html') || window.location.href.includes('produtosColaborador.html')) {
+        // Esconder elementos de loading
+        const loadingElement = document.getElementById('carregandoProdutos');
+        if (loadingElement) {
+            loadingElement.classList.add('d-none');
+        }
         
-        if (produtoId) {
-            carregarProduto(produtoId).then(produto => {
-                document.getElementById('prodId').value = produto.prodId;
-                document.getElementById('prodNome').value = produto.prodNome;
-                document.getElementById('prodDescricao').value = produto.prodDescricao || '';
-                document.getElementById('prodPrecoCompra').value = produto.prodPrecoCompra || '';
-                document.getElementById('prodPrecoVenda').value = produto.prodPrecoVenda;
-                document.getElementById('quantidade').value = produto.quantidade;
+        // Adicionar eventos aos botões
+        const checkboxInativo = document.getElementById('mostrarInativos');
+        if (checkboxInativo) {
+            checkboxInativo.addEventListener('change', function() {
+                window.location.reload();
+            });
+        }
+        
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#tabelaProdutos tr');
                 
-                const ativoElement = document.getElementById('ativo');
-                if (ativoElement) {
-                    ativoElement.checked = produto.ativo;
+                rows.forEach(row => {
+                    const nome = row.querySelector('td:first-child').textContent.toLowerCase();
+                    const descricao = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                    
+                    if (nome.includes(searchTerm) || descricao.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Eventos para botões de ação
+        document.querySelectorAll('.toggle-status').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (confirm('Deseja alterar o status deste produto?')) {
+                    alert('Status alterado com sucesso!');
                 }
+            });
+        });
+        
+        document.querySelectorAll('.gerar-movimentacao').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const prodId = this.getAttribute('data-id');
+                const prodNome = this.getAttribute('data-nome');
+                const estoque = parseInt(this.getAttribute('data-estoque'));
+                
+                document.getElementById('movProdutoId').value = prodId;
+                document.getElementById('movProdutoNome').textContent = prodNome;
+                document.getElementById('movEstoqueAtual').textContent = estoque;
+                document.getElementById('movQuantidade').value = '';
+                document.getElementById('movTipo').value = '';
+                document.getElementById('movEstoqueFinal').textContent = '-';
+                
+                const movimentacaoModal = new bootstrap.Modal(document.getElementById('movimentacaoModal'));
+                movimentacaoModal.show();
+            });
+        });
+        
+        // Evento para confirmar movimentação
+        const btnConfirmarMovimentacao = document.getElementById('btnConfirmarMovimentacao');
+        if (btnConfirmarMovimentacao) {
+            btnConfirmarMovimentacao.addEventListener('click', function() {
+                alert('Movimentação realizada com sucesso!');
+                const movimentacaoModal = bootstrap.Modal.getInstance(document.getElementById('movimentacaoModal'));
+                if (movimentacaoModal) movimentacaoModal.hide();
             });
         }
     }
     
-    const produtoForm = document.getElementById('produtoForm');
-    if (produtoForm) {
-        produtoForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const prodId = document.getElementById('prodId')?.value;
-            const isEditing = !!prodId;
-            
-            const produto = {
-                prodNome: document.getElementById('prodNome').value,
-                prodDescricao: document.getElementById('prodDescricao').value,
-                prodPrecoCompra: document.getElementById('prodPrecoCompra').value,
-                prodPrecoVenda: document.getElementById('prodPrecoVenda').value,
-                quantidade: document.getElementById('quantidade').value,
-                ativo: document.getElementById('ativo')?.checked ?? true
-            };
-            
-            if (isEditing) {
-                produto.prodId = prodId;
-            }
-            
-            salvarProduto(produto, isEditing)
-                .then(response => {
-                    alert(isEditing ? 'Produto atualizado com sucesso!' : 'Produto cadastrado com sucesso!');
-                    window.location.href = 'listar.html';
-                })
-                .catch(error => {
-                    alert('Erro ao ' + (isEditing ? 'atualizar' : 'cadastrar') + ' produto. Verifique os dados e tente novamente.');
-                });
-        });
+    // Verifica se está na página de cadastro/edição de produto
+    if (window.location.href.includes('cadastrar.html')) {
+        const produtoForm = document.getElementById('produtoForm');
+        if (produtoForm) {
+            produtoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Produto salvo com sucesso!');
+                window.location.href = 'listar.html';
+            });
+        }
     }
     
+    // Adicionar eventos para atualização de estoque final
     const movTipo = document.getElementById('movTipo');
     const movQuantidade = document.getElementById('movQuantidade');
-    
     if (movTipo && movQuantidade) {
+        const atualizarEstoqueFinal = function() {
+            const estoqueAtual = parseInt(document.getElementById('movEstoqueAtual').textContent || 0);
+            const quantidade = parseInt(movQuantidade.value || 0);
+            const tipo = movTipo.value;
+            
+            let estoqueFinal = estoqueAtual;
+            if (tipo === 'ENTRADA') {
+                estoqueFinal += quantidade;
+            } else if (tipo === 'SAIDA') {
+                estoqueFinal -= quantidade;
+            }
+            
+            document.getElementById('movEstoqueFinal').textContent = estoqueFinal;
+        };
+        
         movTipo.addEventListener('change', atualizarEstoqueFinal);
         movQuantidade.addEventListener('input', atualizarEstoqueFinal);
-        
-        document.getElementById('btnConfirmarMovimentacao').addEventListener('click', registrarMovimentacao);
-    }
-    
-    const checkboxInativo = document.getElementById('mostrarInativos');
-    if (checkboxInativo) {
-        checkboxInativo.addEventListener('change', function() {
-            carregarProdutos();
-        });
-    }
-    
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            aplicarFiltroBusca();
-        });
     }
 });
-
-function aplicarFiltroBusca() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#tabelaProdutos tr');
-    
-    rows.forEach(row => {
-        const nome = row.querySelector('td:first-child').textContent.toLowerCase();
-        const descricao = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-        
-        if (nome.includes(searchTerm) || descricao.includes(searchTerm)) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
-    });
-}

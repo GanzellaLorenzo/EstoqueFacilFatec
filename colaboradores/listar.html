@@ -43,7 +43,67 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabelaColaboradores">
-                                    <!-- Dados serão carregados via JavaScript -->
+                                    <!-- Dados fictícios pré-carregados -->
+                                    <tr>
+                                        <td>João Silva</td>
+                                        <td>joao@exemplo.com</td>
+                                        <td>
+                                            <span class="badge bg-success">Ativo</span>
+                                        </td>
+                                        <td>
+                                            <a href="editar.html?id=1" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger toggle-status" data-id="1" data-status="true">
+                                                <i class="bi bi-person-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Maria Souza</td>
+                                        <td>maria@exemplo.com</td>
+                                        <td>
+                                            <span class="badge bg-success">Ativo</span>
+                                        </td>
+                                        <td>
+                                            <a href="editar.html?id=2" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger toggle-status" data-id="2" data-status="true">
+                                                <i class="bi bi-person-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pedro Oliveira</td>
+                                        <td>pedro@exemplo.com</td>
+                                        <td>
+                                            <span class="badge bg-success">Ativo</span>
+                                        </td>
+                                        <td>
+                                            <a href="editar.html?id=3" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger toggle-status" data-id="3" data-status="true">
+                                                <i class="bi bi-person-x"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-secondary">
+                                        <td>Ana Costa</td>
+                                        <td>ana@exemplo.com</td>
+                                        <td>
+                                            <span class="badge bg-danger">Inativo</span>
+                                        </td>
+                                        <td>
+                                            <a href="editar.html?id=4" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-success toggle-status" data-id="4" data-status="false">
+                                                <i class="bi bi-person-check"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -68,5 +128,40 @@
     <script src="../js/components.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/colaboradores.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esconder indicador de carregamento
+            document.getElementById('carregandoColaboradores').classList.add('d-none');
+            
+            // Adicionar eventos aos botões
+            document.querySelectorAll('.toggle-status').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (confirm('Deseja alterar o status deste colaborador?')) {
+                        alert('Status alterado com sucesso!');
+                    }
+                });
+            });
+            
+            // Evento para busca
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#tabelaColaboradores tr');
+                    
+                    rows.forEach(row => {
+                        const nome = row.querySelector('td:first-child').textContent.toLowerCase();
+                        const email = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                        
+                        if (nome.includes(searchTerm) || email.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>

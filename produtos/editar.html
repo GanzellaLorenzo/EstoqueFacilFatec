@@ -103,17 +103,72 @@
             const produtoId = urlParams.get('id');
             
             if (produtoId) {
-                carregarProduto(produtoId).then(produto => {
+                // Dados fictícios para demonstração
+                const produtosFicticios = {
+                    '1': {
+                        prodId: 1,
+                        prodNome: 'Notebook Dell',
+                        prodDescricao: 'Notebook i7 16GB RAM',
+                        prodPrecoCompra: '3500.00',
+                        prodPrecoVenda: '4900.00',
+                        quantidade: 15,
+                        ativo: true
+                    },
+                    '2': {
+                        prodId: 2,
+                        prodNome: 'Monitor 24"',
+                        prodDescricao: 'Monitor LED Full HD',
+                        prodPrecoCompra: '800.00',
+                        prodPrecoVenda: '1200.00',
+                        quantidade: 8,
+                        ativo: true
+                    },
+                    '3': {
+                        prodId: 3,
+                        prodNome: 'Teclado Mecânico',
+                        prodDescricao: 'Teclado RGB',
+                        prodPrecoCompra: '180.00',
+                        prodPrecoVenda: '320.00',
+                        quantidade: 20,
+                        ativo: true
+                    },
+                    '4': {
+                        prodId: 4,
+                        prodNome: 'Mouse Sem Fio',
+                        prodDescricao: 'Mouse Wireless',
+                        prodPrecoCompra: '45.00',
+                        prodPrecoVenda: '89.90',
+                        quantidade: 30,
+                        ativo: false
+                    }
+                };
+                
+                const produto = produtosFicticios[produtoId];
+                
+                if (produto) {
                     document.getElementById('prodId').value = produto.prodId;
                     document.getElementById('prodNome').value = produto.prodNome;
-                    document.getElementById('prodDescricao').value = produto.prodDescricao || '';
-                    document.getElementById('prodPrecoCompra').value = produto.prodPrecoCompra || '';
+                    document.getElementById('prodDescricao').value = produto.prodDescricao;
+                    document.getElementById('prodPrecoCompra').value = produto.prodPrecoCompra;
                     document.getElementById('prodPrecoVenda').value = produto.prodPrecoVenda;
                     document.getElementById('quantidade').value = produto.quantidade;
                     document.getElementById('ativo').checked = produto.ativo;
-                });
+                } else {
+                    alert('Produto não encontrado');
+                    window.location.href = 'listar.html';
+                }
             } else {
                 window.location.href = 'listar.html';
+            }
+            
+            // Adicionar evento para o formulário
+            const produtoForm = document.getElementById('produtoForm');
+            if (produtoForm) {
+                produtoForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('Produto atualizado com sucesso!');
+                    window.location.href = 'listar.html';
+                });
             }
         });
     </script>

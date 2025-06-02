@@ -1,6 +1,7 @@
 const Components = {
     renderSidebar: function() {
-        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+        const usuarioJSON = localStorage.getItem('usuario');
+        const usuario = usuarioJSON ? JSON.parse(usuarioJSON) : {tipo: 'COLABORADOR', nome: 'Usuário'};
         const activeMenu = this.getActiveMenu();
         const isColaborador = usuario.tipo === 'COLABORADOR';
         const basePath = this.getBasePath();
@@ -37,17 +38,18 @@ const Components = {
                         </a>
                     </li>
                     <li class="sidebar-menu-item${activeMenu === 'produtos' ? ' active' : ''}">
-                        <a href="${isColaborador ? `${basePath}produtosColaborador.html` : `${basePath}produtos/listar.html`}" class="sidebar-menu-link">
+                        <a href="${isColaborador ? `${basePath}painelColaborador/produtosColaborador.html` : `${basePath}produtos/listar.html`}" class="sidebar-menu-link">
                             <i class="bi bi-box-seam"></i>
                             <span>Produtos</span>
                         </a>
                     </li>
-                    <li class="sidebar-menu-item${activeMenu === 'colaboradores' ? ' active' : ''} gestor-only">
+                    ${isColaborador ? '' : `
+                    <li class="sidebar-menu-item${activeMenu === 'colaboradores' ? ' active' : ''}">
                         <a href="${basePath}colaboradores/listar.html" class="sidebar-menu-link">
                             <i class="bi bi-people"></i>
                             <span>Colaboradores</span>
                         </a>
-                    </li>
+                    </li>`}
                     <li class="sidebar-menu-item${activeMenu === 'auditoria' ? ' active' : ''}">
                         <a href="${basePath}auditoria/listar.html" class="sidebar-menu-link">
                             <i class="bi bi-journal-text"></i>
@@ -125,14 +127,11 @@ const Components = {
         const headerArea = document.querySelector('.header-area');
         if (headerArea) {
             const activeMenu = this.getActiveMenu();
-            console.log("Menu ativo:", activeMenu);
-            
             const searchPlaceholder = activeMenu === 'produtos' ? 'Buscar produtos...' : 
                                       activeMenu === 'colaboradores' ? 'Buscar colaboradores...' : 
                                       activeMenu === 'auditoria' ? 'Buscar auditoria...' : 'Buscar...';
             
             const showFilterInativos = activeMenu === 'produtos' || activeMenu === 'colaboradores';
-            console.log("Mostrar filtro inativos:", showFilterInativos);
             const showSearch = activeMenu !== 'dashboard';
             
             headerArea.innerHTML = this.renderHeader(searchPlaceholder, showFilterInativos, showSearch);
@@ -140,10 +139,12 @@ const Components = {
         
         this.initEventListeners();
         
-        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+        // Remover completamente elementos específicos de gestor para colaboradores
+        const usuarioJSON = localStorage.getItem('usuario');
+        const usuario = usuarioJSON ? JSON.parse(usuarioJSON) : {tipo: 'COLABORADOR'};
         if (usuario.tipo !== 'GESTOR') {
             document.querySelectorAll('.gestor-only').forEach(el => {
-                el.style.display = 'none';
+                el.remove(); // Remove completamente em vez de apenas esconder
             });
         }
     },
@@ -167,8 +168,6 @@ const Components = {
         if (logoutBtn) {
             logoutBtn.addEventListener('click', function() {
                 if (confirm('Deseja realmente sair?')) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('tipoToken');
                     localStorage.removeItem('usuario');
                     window.location.href = Components.getBasePath() + 'index.html';
                 }

@@ -46,7 +46,76 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabelaProdutos">
-                                    <!-- Dados serão carregados via JavaScript -->
+                                    <!-- Dados fictícios pré-carregados -->
+                                    <tr>
+                                        <td>Notebook Dell</td>
+                                        <td>Notebook i7 16GB RAM</td>
+                                        <td>R$ 3500.00</td>
+                                        <td>R$ 4900.00</td>
+                                        <td>15</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="1" data-nome="Notebook Dell" data-estoque="15">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                            <a href="editar.html?id=1" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger toggle-status" data-id="1" data-status="true">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monitor 24"</td>
+                                        <td>Monitor LED Full HD</td>
+                                        <td>R$ 800.00</td>
+                                        <td>R$ 1200.00</td>
+                                        <td>8</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="2" data-nome="Monitor 24&quot;" data-estoque="8">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                            <a href="editar.html?id=2" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger toggle-status" data-id="2" data-status="true">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Teclado Mecânico</td>
+                                        <td>Teclado RGB</td>
+                                        <td>R$ 180.00</td>
+                                        <td>R$ 320.00</td>
+                                        <td>20</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="3" data-nome="Teclado Mecânico" data-estoque="20">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                            <a href="editar.html?id=3" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-danger toggle-status" data-id="3" data-status="true">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="table-secondary">
+                                        <td>Mouse Sem Fio</td>
+                                        <td>Mouse Wireless</td>
+                                        <td>R$ 45.00</td>
+                                        <td>R$ 89.90</td>
+                                        <td>30</td>
+                                        <td>
+                                            <a href="editar.html?id=4" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-success toggle-status" data-id="4" data-status="false">
+                                                <i class="bi bi-arrow-counterclockwise"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -124,7 +193,65 @@
     <script src="../js/produtos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            carregarProdutos();
+            // Esconder indicador de carregamento
+            document.getElementById('carregandoProdutos').classList.add('d-none');
+            
+            // Adicionar eventos aos botões
+            document.querySelectorAll('.toggle-status').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    if (confirm('Deseja alterar o status deste produto?')) {
+                        alert('Status alterado com sucesso!');
+                    }
+                });
+            });
+            
+            document.querySelectorAll('.gerar-movimentacao').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prodId = this.getAttribute('data-id');
+                    const prodNome = this.getAttribute('data-nome');
+                    const estoque = parseInt(this.getAttribute('data-estoque'));
+                    
+                    document.getElementById('movProdutoId').value = prodId;
+                    document.getElementById('movProdutoNome').textContent = prodNome;
+                    document.getElementById('movEstoqueAtual').textContent = estoque;
+                    document.getElementById('movQuantidade').value = '';
+                    document.getElementById('movTipo').value = '';
+                    document.getElementById('movEstoqueFinal').textContent = '-';
+                    
+                    const movimentacaoModal = new bootstrap.Modal(document.getElementById('movimentacaoModal'));
+                    movimentacaoModal.show();
+                });
+            });
+            
+            // Evento para confirmar movimentação
+            const btnConfirmarMovimentacao = document.getElementById('btnConfirmarMovimentacao');
+            if (btnConfirmarMovimentacao) {
+                btnConfirmarMovimentacao.addEventListener('click', function() {
+                    alert('Movimentação realizada com sucesso!');
+                    const movimentacaoModal = bootstrap.Modal.getInstance(document.getElementById('movimentacaoModal'));
+                    if (movimentacaoModal) movimentacaoModal.hide();
+                });
+            }
+            
+            // Evento para busca
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#tabelaProdutos tr');
+                    
+                    rows.forEach(row => {
+                        const nome = row.querySelector('td:first-child').textContent.toLowerCase();
+                        const descricao = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                        
+                        if (nome.includes(searchTerm) || descricao.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
         });
     </script>
 </body>

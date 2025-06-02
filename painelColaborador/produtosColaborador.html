@@ -59,6 +59,43 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tabelaProdutos">
+                                    <!-- Dados fictícios pré-carregados -->
+                                    <tr>
+                                        <td>Notebook Dell</td>
+                                        <td>Notebook i7 16GB RAM</td>
+                                        <td>R$ 3500.00</td>
+                                        <td>R$ 4900.00</td>
+                                        <td>15</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="1" data-nome="Notebook Dell" data-estoque="15">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monitor 24"</td>
+                                        <td>Monitor LED Full HD</td>
+                                        <td>R$ 800.00</td>
+                                        <td>R$ 1200.00</td>
+                                        <td>8</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="2" data-nome="Monitor 24&quot;" data-estoque="8">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Teclado Mecânico</td>
+                                        <td>Teclado RGB</td>
+                                        <td>R$ 180.00</td>
+                                        <td>R$ 320.00</td>
+                                        <td>20</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="3" data-nome="Teclado Mecânico" data-estoque="20">
+                                                <i class="bi bi-arrow-left-right"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -134,179 +171,58 @@
     <script src="../js/produtos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            carregarProdutosColaborador();
-        });
-        
-        async function carregarProdutosColaborador() {
-            try {
-                document.getElementById('carregandoProdutos').classList.remove('d-none');
-                document.getElementById('nenhumProduto').classList.add('d-none');
-                
-                const produtos = await Utils.fetchAPI('/produtos');
-                
-                const tabelaProdutos = document.getElementById('tabelaProdutos');
-                const mostrarInativos = document.getElementById('mostrarInativos')?.checked || false;
-                
-                document.getElementById('carregandoProdutos').classList.add('d-none');
-                
-                const produtosFiltrados = mostrarInativos 
-                    ? produtos 
-                    : produtos.filter(produto => produto.ativo);
+            // Esconder indicador de carregamento
+            document.getElementById('carregandoProdutos').classList.add('d-none');
+            
+            // Adicionar eventos aos botões
+            document.querySelectorAll('.gerar-movimentacao').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const prodId = this.getAttribute('data-id');
+                    const prodNome = this.getAttribute('data-nome');
+                    const estoque = parseInt(this.getAttribute('data-estoque'));
                     
-                if (produtosFiltrados.length === 0) {
-                    document.getElementById('nenhumProduto').classList.remove('d-none');
-                    return;
-                }
-
-                tabelaProdutos.innerHTML = '';
-                
-                produtosFiltrados.forEach(produto => {
-                    const tr = document.createElement('tr');
+                    document.getElementById('movProdutoId').value = prodId;
+                    document.getElementById('movProdutoNome').textContent = prodNome;
+                    document.getElementById('movEstoqueAtual').textContent = estoque;
+                    document.getElementById('movQuantidade').value = '';
+                    document.getElementById('movTipo').value = '';
+                    document.getElementById('movEstoqueFinal').textContent = '-';
                     
-                    if (!produto.ativo) {
-                        tr.classList.add('table-secondary');
-                    }
-                    
-                    tr.innerHTML = `
-                        <td>${produto.prodNome}</td>
-                        <td>${produto.prodDescricao || '-'}</td>
-                        <td>R$ ${produto.prodPrecoCompra ? parseFloat(produto.prodPrecoCompra).toFixed(2) : '-'}</td>
-                        <td>R$ ${parseFloat(produto.prodPrecoVenda).toFixed(2)}</td>
-                        <td>${produto.quantidade}</td>
-                        <td>
-                            ${produto.ativo ? `
-                            <button class="btn btn-sm btn-success gerar-movimentacao" data-id="${produto.prodId}" data-nome="${produto.prodNome}" data-estoque="${produto.quantidade}">
-                                <i class="bi bi-arrow-left-right"></i>
-                            </button>
-                            ` : '<span class="badge bg-secondary">Inativo</span>'}
-                        </td>
-                    `;
-                    tabelaProdutos.appendChild(tr);
+                    const movimentacaoModal = new bootstrap.Modal(document.getElementById('movimentacaoModal'));
+                    movimentacaoModal.show();
                 });
-                
-                document.querySelectorAll('.gerar-movimentacao').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const prodId = this.getAttribute('data-id');
-                        const prodNome = this.getAttribute('data-nome');
-                        const estoque = parseInt(this.getAttribute('data-estoque'));
-                        
-                        document.getElementById('movProdutoId').value = prodId;
-                        document.getElementById('movProdutoNome').textContent = prodNome;
-                        document.getElementById('movEstoqueAtual').textContent = estoque;
-                        document.getElementById('movQuantidade').value = '';
-                        document.getElementById('movTipo').value = '';
-                        document.getElementById('movEstoqueFinal').textContent = '-';
-                        
-                        const movimentacaoModal = new bootstrap.Modal(document.getElementById('movimentacaoModal'));
-                        movimentacaoModal.show();
-                    });
+            });
+            
+            // Evento para confirmar movimentação
+            const btnConfirmarMovimentacao = document.getElementById('btnConfirmarMovimentacao');
+            if (btnConfirmarMovimentacao) {
+                btnConfirmarMovimentacao.addEventListener('click', function() {
+                    alert('Movimentação realizada com sucesso!');
+                    const movimentacaoModal = bootstrap.Modal.getInstance(document.getElementById('movimentacaoModal'));
+                    if (movimentacaoModal) movimentacaoModal.hide();
                 });
-                
-                const movTipo = document.getElementById('movTipo');
-                const movQuantidade = document.getElementById('movQuantidade');
-                
-                if (movTipo && movQuantidade) {
-                    const atualizarEstoqueFinal = function() {
-                        const estoqueAtual = parseInt(document.getElementById('movEstoqueAtual').textContent);
-                        const quantidade = parseInt(document.getElementById('movQuantidade').value) || 0;
-                        const tipo = document.getElementById('movTipo').value;
-                        
-                        let estoqueFinal = estoqueAtual;
-                        
-                        if (tipo === 'ENTRADA') {
-                            estoqueFinal += quantidade;
-                            document.getElementById('quantidadeMax').textContent = '';
-                            document.getElementById('movQuantidade').removeAttribute('max');
-                        } else if (tipo === 'SAIDA') {
-                            estoqueFinal -= quantidade;
-                            document.getElementById('quantidadeMax').textContent = `Máximo: ${estoqueAtual}`;
-                            document.getElementById('movQuantidade').setAttribute('max', estoqueAtual);
-                        }
-                        
-                        document.getElementById('movEstoqueFinal').textContent = 
-                            (estoqueFinal >= 0) ? estoqueFinal : 'Estoque insuficiente';
-                        
-                        if (estoqueFinal < 0) {
-                            document.getElementById('movEstoqueFinal').classList.add('text-danger');
-                            document.getElementById('btnConfirmarMovimentacao').disabled = true;
-                        } else {
-                            document.getElementById('movEstoqueFinal').classList.remove('text-danger');
-                            document.getElementById('btnConfirmarMovimentacao').disabled = false;
-                        }
-                    };
-                    
-                    movTipo.addEventListener('change', atualizarEstoqueFinal);
-                    movQuantidade.addEventListener('input', atualizarEstoqueFinal);
-                    
-                    document.getElementById('btnConfirmarMovimentacao').addEventListener('click', async function() {
-                        try {
-                            const produtoId = document.getElementById('movProdutoId').value;
-                            const tipo = document.getElementById('movTipo').value;
-                            const quantidade = parseInt(document.getElementById('movQuantidade').value);
-                            
-                            if (!tipo || !quantidade || quantidade <= 0) {
-                                Utils.notifications.warning('Por favor, preencha todos os campos corretamente.');
-                                return;
-                            }
-                            
-                            const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-                            
-                            const movimentacao = {
-                                acao: tipo,
-                                produto: {
-                                    prodId: parseInt(produtoId)
-                                },
-                                quantidade: quantidade,
-                                usuario: {
-                                    userId: parseInt(usuario.id)
-                                }
-                            };
-                            
-                            await Utils.fetchAPI('/acoes', 'POST', movimentacao);
-                            
-                            const movimentacaoModal = bootstrap.Modal.getInstance(document.getElementById('movimentacaoModal'));
-                            movimentacaoModal.hide();
-                            
-                            Utils.notifications.success('Movimentação registrada com sucesso!');
-                            
-                            carregarProdutosColaborador();
-                            
-                        } catch (error) {
-                            Utils.handleError(error, 'Erro ao registrar movimentação');
-                        }
-                    });
-                }
-                
-                const checkboxInativo = document.getElementById('mostrarInativos');
-                if (checkboxInativo) {
-                    checkboxInativo.addEventListener('change', function() {
-                        carregarProdutosColaborador();
-                    });
-                }
-                
-                const searchInput = document.getElementById('searchInput');
-                if (searchInput) {
-                    searchInput.addEventListener('input', function() {
-                        const searchTerm = this.value.toLowerCase();
-                        const rows = document.querySelectorAll('#tabelaProdutos tr');
-                        
-                        rows.forEach(row => {
-                            const nome = row.querySelector('td:first-child').textContent.toLowerCase();
-                            const descricao = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-                            
-                            if (nome.includes(searchTerm) || descricao.includes(searchTerm)) {
-                                row.style.display = '';
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        });
-                    });
-                }
-            } catch (error) {
-                Utils.handleError(error, 'Erro ao carregar produtos');
-                document.getElementById('carregandoProdutos').classList.add('d-none');
             }
-        }
+            
+            // Evento para busca
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = document.querySelectorAll('#tabelaProdutos tr');
+                    
+                    rows.forEach(row => {
+                        const nome = row.querySelector('td:first-child').textContent.toLowerCase();
+                        const descricao = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                        
+                        if (nome.includes(searchTerm) || descricao.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
+        });
     </script>
 </body>
 </html>

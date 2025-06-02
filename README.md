@@ -31,6 +31,9 @@ O sistema possui dois perfis de usuário com diferentes níveis de acesso:
 - Visualização de histórico de auditoria
 - Sem acesso à gestão de colaboradores
 
+### Deploy
+- https://ganzellalorenzo.github.io/FrontEnd-estoqueFacil/
+
 ## 📸 Screenshots do Sistema
 
 ### Tela de Login
